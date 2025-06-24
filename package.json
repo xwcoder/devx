@@ -1,0 +1,52 @@
+{
+  "name": "devx",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "lint": "tsc --noEmit && eslint"
+  },
+  "dependencies": {
+    "@codemirror/lang-css": "^6.3.1",
+    "@codemirror/lang-html": "^6.4.9",
+    "@codemirror/lang-javascript": "^6.2.4",
+    "@codemirror/lang-json": "^6.0.2",
+    "@codemirror/lang-xml": "^6.1.0",
+    "@codemirror/lang-yaml": "^6.1.2",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tooltip": "^1.2.7",
+    "@tailwindcss/vite": "^4.1.10",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-window-state": "~2.2.3",
+    "@types/js-yaml": "^4.0.9",
+    "@uiw/react-codemirror": "^4.23.13",
+    "@uiw/react-json-view": "2.0.0-alpha.32",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "js-beautify": "^1.15.4",
+    "js-yaml": "^4.1.0",
+    "lucide-react": "^0.518.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.10"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@types/js-beautify": "^1.14.3",
+    "@types/node": "^24.0.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
+    "tw-animate-css": "^1.3.4",
+    "typescript": "~5.6.2",
+    "vite": "^6.0.3"
+  }
+}
