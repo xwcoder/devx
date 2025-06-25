@@ -33,37 +33,9 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "category": "public.app-category.developer-tools",
-      "dmg": {
-        "title": "DevX Installer",
-        "window": {
-          "width": 540,
-          "height": 380
-        },
-        "contents": [
-          {
-            "x": 130,
-            "y": 220
-          },
-          {
-            "x": 410,
-            "y": 220,
-            "type": "link",
-            "path": "/Applications"
-          }
-        ]
-      },
       "entitlements": "entitlements.plist",
-      "embedded.provisionprofile": "embedded.provisionprofile",
-      "exceptionDomain": "com.creep.devx.app",
-      "frameworks": [],
-      "minimumSystemVersion": "10.13.0",
-      "providerShortName": "Creep",
       "signingIdentity": "Developer ID Application: Your Name (TEAM_ID)",
-      "hardenedRuntime": true,
-      "notarization": {
-        "teamId": "TEAM_ID"
-      }
+      "hardenedRuntime": true
     }
   }
 }

@@ -19,11 +19,11 @@ mkdir -p $ICON_DIR
 sizes=(16 32 48 64 128 256 512)
 for size in "${sizes[@]}"; do
   echo "生成 ${size}x${size}.png ..."
-  convert "$ICON_SRC" -resize ${size}x${size} "$ICON_DIR/${size}x${size}.png"
+  convert "$ICON_SRC" -resize ${size}x${size} -define png:color-type=6 "$ICON_DIR/${size}x${size}.png"
 done
 
 # 生成高分辨率
-convert "$ICON_SRC" -resize 256x256 "$ICON_DIR/128x128@2x.png"
+convert "$ICON_SRC" -resize 256x256 -define png:color-type=6 "$ICON_DIR/128x128@2x.png"
 
 # 生成 Windows ICO
 convert "$ICON_SRC" -resize 256x256 "$ICON_DIR/icon.ico"
@@ -47,11 +47,11 @@ for item in "${square_sizes[@]}"; do
   size=${item%%:*}
   fname=${item#*:}
   echo "生成 $fname ..."
-  convert "$ICON_SRC" -resize ${size}x${size} "$ICON_DIR/$fname"
+  convert "$ICON_SRC" -resize ${size}x${size} -define png:color-type=6 "$ICON_DIR/$fname"
 done
 
 # 生成 Store Logo
-convert "$ICON_SRC" -resize 1024x1024 "$ICON_DIR/StoreLogo.png"
+convert "$ICON_SRC" -resize 1024x1024 -define png:color-type=6 "$ICON_DIR/StoreLogo.png"
 
 echo "✅ 所有平台 icon 已生成并替换！"
 echo "📁 图标文件保存在: $ICON_DIR/" 
