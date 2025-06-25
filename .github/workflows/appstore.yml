@@ -1,0 +1,153 @@
+name: App Store Release
+
+on:
+  push:
+    tags:
+      - 'appstore-*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'App Store version (e.g., appstore-1.0.0)'
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  build-appstore:
+    name: Build for App Store
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin, aarch64-apple-darwin
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          targets: x86_64-apple-darwin, aarch64-apple-darwin
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Setup macOS signing
+        uses: apple-actions/import-codesigning-certs@v1
+        with:
+          p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
+          p12-password: ${{ secrets.MACOS_P12_PASSWORD }}
+
+      - name: Setup App Store Connect API
+        uses: apple-actions/app-store-connect-api@v1
+        with:
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      - name: Build Universal macOS app for App Store
+        run: |
+          # 使用 App Store 专用配置构建
+          cp src-tauri/tauri.appstore.conf.json src-tauri/tauri.conf.json
+          pnpm tauri build --target universal-apple-darwin
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.MACOS_P12_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MACOS_P12_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Upload App Store build
+        uses: actions/upload-artifact@v4
+        with:
+          name: devx-appstore
+          path: |
+            src-tauri/target/universal-apple-darwin/release/bundle/app/
+          retention-days: 7
+
+  upload-to-appstore:
+    name: Upload to App Store Connect
+    runs-on: macos-latest
+    needs: build-appstore
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download App Store build
+        uses: actions/download-artifact@v4
+        with:
+          name: devx-appstore
+          path: app-build
+
+      - name: Setup App Store Connect API
+        uses: apple-actions/app-store-connect-api@v1
+        with:
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload to App Store Connect
+        run: |
+          # 上传应用到 App Store Connect
+          xcrun altool --upload-app \
+            --type osx \
+            --file "app-build/DevX.app" \
+            --username "${{ secrets.APPLE_ID }}" \
+            --password "${{ secrets.APPLE_ID_PASS }}" \
+            --asc-provider "${{ secrets.APPLE_TEAM_ID }}"
+
+      - name: Create App Store Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: App Store Release ${{ steps.get_version.outputs.version }}
+          body: |
+            ## DevX App Store Release ${{ steps.get_version.outputs.version }}
+            
+            ### App Store
+            
+            - **macOS Universal**: 已上传到 App Store Connect
+            - 支持 Intel 和 Apple Silicon Mac
+            
+            ### 下一步
+            
+            1. 在 App Store Connect 中创建新版本
+            2. 填写应用描述、截图等信息
+            3. 提交审核
+            
+            ### Changes
+            
+            See the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
