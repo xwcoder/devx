@@ -1,14 +1,8 @@
-# Tauri + Vanilla TS
-
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Typescript.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
-
 # DevX
 
-一个现代化的开发者工具集，提供代码格式化、编码转换等功能。
+一个开发者工具集，提供代码格式化、编码转换等功能。
+
+![screenshot](docs/images/screenshot.png)
 
 ## 功能特性
 
