@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import type { KeyboardEvent, PointerEvent } from "react"
 import CodeMirror from "@uiw/react-codemirror"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
@@ -6,8 +7,6 @@ import { yaml } from "@codemirror/lang-yaml"
 import { html } from "@codemirror/lang-html"
 import { css } from "@codemirror/lang-css"
 import { xml } from "@codemirror/lang-xml"
-import { Button } from "@/components/ui/button"
-import { Plus, Minus } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 type Props = {
@@ -36,6 +35,34 @@ const langLabels = {
   xml: "XML",
 }
 
+const MIN_EDITOR_HEIGHT = 160
+const MAX_EDITOR_HEIGHT_RATIO = 0.75
+const KEYBOARD_RESIZE_STEP = 16
+const KEYBOARD_RESIZE_LARGE_STEP = 48
+
+function getMaxEditorHeight() {
+  if (typeof window === "undefined") {
+    return MIN_EDITOR_HEIGHT
+  }
+
+  return Math.max(
+    MIN_EDITOR_HEIGHT,
+    Math.round(window.innerHeight * MAX_EDITOR_HEIGHT_RATIO)
+  )
+}
+
+function clampEditorHeight(height: number) {
+  return Math.min(Math.max(height, MIN_EDITOR_HEIGHT), getMaxEditorHeight())
+}
+
+function getInitialEditorHeight(height: number) {
+  if (typeof window === "undefined") {
+    return MIN_EDITOR_HEIGHT
+  }
+
+  return clampEditorHeight(Math.round(window.innerHeight * (height / 100)))
+}
+
 export function Editor(props: Props) {
   const { t } = useTranslation()
   const {
@@ -46,11 +73,85 @@ export function Editor(props: Props) {
     height = 30,
   } = props
 
-  const [h, setH] = useState(height)
+  const [editorHeight, setEditorHeight] = useState(() =>
+    getInitialEditorHeight(height)
+  )
+  const maxEditorHeight = getMaxEditorHeight()
 
-  const handleHeightChange = (delta: number) => {
-    setH(Math.max(h + delta, 10))
+  const resizeBy = useCallback((delta: number) => {
+    setEditorHeight((currentHeight) => clampEditorHeight(currentHeight + delta))
+  }, [])
+
+  const handleResizeStart = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      event.preventDefault()
+
+      const startY = event.clientY
+      const startHeight = editorHeight
+
+      const handlePointerMove = (moveEvent: globalThis.PointerEvent) => {
+        setEditorHeight(
+          clampEditorHeight(startHeight + moveEvent.clientY - startY)
+        )
+      }
+
+      const stopResize = () => {
+        document.body.style.cursor = ""
+        document.body.style.userSelect = ""
+        window.removeEventListener("pointermove", handlePointerMove)
+        window.removeEventListener("pointerup", stopResize)
+        window.removeEventListener("pointercancel", stopResize)
+      }
+
+      document.body.style.cursor = "row-resize"
+      document.body.style.userSelect = "none"
+      window.addEventListener("pointermove", handlePointerMove)
+      window.addEventListener("pointerup", stopResize)
+      window.addEventListener("pointercancel", stopResize)
+    },
+    [editorHeight]
+  )
+
+  const handleResizeKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.shiftKey ? KEYBOARD_RESIZE_LARGE_STEP : KEYBOARD_RESIZE_STEP
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault()
+      resizeBy(-step)
+      return
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault()
+      resizeBy(step)
+      return
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault()
+      setEditorHeight(MIN_EDITOR_HEIGHT)
+      return
+    }
+
+    if (event.key === "End") {
+      event.preventDefault()
+      setEditorHeight(getMaxEditorHeight())
+    }
   }
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setEditorHeight((currentHeight) => clampEditorHeight(currentHeight))
+    }
+
+    window.addEventListener("resize", handleWindowResize)
+
+    return () => {
+      document.body.style.cursor = ""
+      document.body.style.userSelect = ""
+      window.removeEventListener("resize", handleWindowResize)
+    }
+  }, [])
 
   return (
     <div className="overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
@@ -61,37 +162,28 @@ export function Editor(props: Props) {
             {label ?? langLabels[lang]}
           </span>
         </div>
-        <div className="flex items-center gap-x-2">
-          <Button
-            size="icon"
-            variant="ghost"
-            title={t("editor.decreaseHeight")}
-            className="size-7 rounded-md text-muted-foreground hover:text-foreground"
-            onClick={() => handleHeightChange(-10)}
-          >
-            <Minus className="size-4" />
-          </Button>
-          <span className="min-w-9 text-center text-xs tabular-nums text-muted-foreground">
-            {h}%
-          </span>
-          <Button
-            size="icon"
-            variant="ghost"
-            title={t("editor.increaseHeight")}
-            className="size-7 rounded-md text-muted-foreground hover:text-foreground"
-            onClick={() => handleHeightChange(10)}
-          >
-            <Plus className="size-4" />
-          </Button>
-        </div>
       </div>
       <CodeMirror
         value={value}
-        height={`${Math.max(h, 10)}vh`}
+        height={`${editorHeight}px`}
         extensions={[langs[lang]]}
         onChange={onChange}
         className="devx-code-editor"
       />
+      <div
+        role="separator"
+        aria-label={t("editor.resizeHeight")}
+        aria-orientation="horizontal"
+        aria-valuemin={MIN_EDITOR_HEIGHT}
+        aria-valuemax={maxEditorHeight}
+        aria-valuenow={editorHeight}
+        tabIndex={0}
+        className="group flex h-3 cursor-row-resize items-center justify-center border-t border-border/60 bg-muted/20 outline-none transition-colors hover:bg-accent/45 focus-visible:bg-accent/55 focus-visible:ring-2 focus-visible:ring-ring/55"
+        onPointerDown={handleResizeStart}
+        onKeyDown={handleResizeKeyDown}
+      >
+        <span className="h-1 w-8 rounded-full bg-muted-foreground/25 transition-colors group-hover:bg-muted-foreground/45 group-focus-visible:bg-muted-foreground/55" />
+      </div>
     </div>
   )
 }
