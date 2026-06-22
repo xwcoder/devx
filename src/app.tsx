@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { AppContext } from "@/context"
 import Application from "@/application"
-import { startWindowDrag } from "@/lib/window-drag"
+import { startWindowDrag, toggleWindowMaximize } from "@/lib/window-drag"
 import { useTranslation } from "react-i18next"
 
 const SIDEBAR_WIDTH_KEY = "devx:sidebar-width"
@@ -112,8 +112,8 @@ export default function App() {
         <SidebarInset className="min-w-0 bg-background">
           <header className="sticky top-0 z-20 flex h-12 items-center gap-2 bg-sidebar/90 px-3 backdrop-blur sm:px-4">
             <div
-              data-tauri-drag-region
               className="absolute inset-y-0 left-12 right-28"
+              onDoubleClick={toggleWindowMaximize}
               onPointerDown={startWindowDrag}
             />
             <SidebarTrigger className="relative rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground" />
