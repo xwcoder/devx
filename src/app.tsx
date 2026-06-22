@@ -108,19 +108,19 @@ export default function App() {
       >
         <AppSidebar />
         <SidebarResizeHandle onResizeStart={startSidebarResize} />
-        <SidebarInset className="min-w-0">
-          <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border/70 bg-background/90 px-4 backdrop-blur">
-            <SidebarTrigger className="rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground" />
-            <div className="h-5 w-px bg-border" />
-            <span className="text-sm font-medium text-muted-foreground">
-              DevX
-            </span>
-            <div className="ml-auto flex items-center gap-1">
+        <SidebarInset className="min-w-0 bg-background">
+          <header className="sticky top-0 z-20 flex h-12 items-center gap-2 bg-sidebar/90 px-3 backdrop-blur sm:px-4">
+            <div
+              data-tauri-drag-region
+              className="absolute inset-y-0 left-12 right-28"
+            />
+            <SidebarTrigger className="relative rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground" />
+            <div className="relative ml-auto flex items-center gap-1">
               <LanguageToggle />
               <ThemeToggle />
             </div>
           </header>
-          <main className="p-5 sm:p-6">
+          <main className="px-5 pb-5 pt-3 sm:px-6 sm:pb-6 sm:pt-4">
             <Application />
           </main>
         </SidebarInset>

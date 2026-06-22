@@ -25,10 +25,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-sidebar-border/80 bg-sidebar"
+      className="border-sidebar-border/60 bg-sidebar"
       {...props}
     >
-      <SidebarHeader className="border-b border-sidebar-border/70 p-3">
+      <SidebarHeader className="relative px-3 pb-2 pt-12">
+        <div
+          data-tauri-drag-region
+          className="absolute inset-x-0 top-0 h-12"
+        />
         <div className="flex h-11 items-center gap-3 rounded-lg px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
             <SquareTerminal className="size-4" />
@@ -43,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent className="gap-1 px-1 py-2">
+      <SidebarContent className="gap-1 px-1 pb-2 pt-1">
         {appGroups.map((group) => {
           const groupApps = apps.filter((item) => item.group === group.name)
 
