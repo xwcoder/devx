@@ -125,13 +125,4 @@
     font-family: "JetBrains Mono", "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
     font-size: 13px;
   }
-
-  .devx-code-editor .cm-scroller {
-    background: color-mix(in oklab, var(--card) 88%, var(--muted));
-  }
-
-  .devx-code-editor .cm-gutters {
-    background: color-mix(in oklab, var(--card) 82%, var(--muted));
-    border-right-color: var(--border);
-  }
 }

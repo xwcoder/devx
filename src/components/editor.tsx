@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import type { KeyboardEvent, PointerEvent } from "react"
-import CodeMirror from "@uiw/react-codemirror"
+import CodeMirror, { EditorView } from "@uiw/react-codemirror"
 import { javascript } from "@codemirror/lang-javascript"
 import { json } from "@codemirror/lang-json"
 import { yaml } from "@codemirror/lang-yaml"
@@ -34,6 +34,39 @@ const langLabels = {
   css: "CSS",
   xml: "XML",
 }
+
+const devxEditorTheme = EditorView.theme({
+  "&": {
+    backgroundColor: "color-mix(in oklab, var(--card) 88%, var(--muted))",
+    color: "var(--card-foreground)",
+    fontFamily:
+      '"JetBrains Mono", "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace',
+    fontSize: "13px",
+  },
+  ".cm-scroller": {
+    backgroundColor: "color-mix(in oklab, var(--card) 88%, var(--muted))",
+  },
+  ".cm-content": {
+    caretColor: "var(--foreground)",
+  },
+  ".cm-cursor": {
+    borderLeftColor: "var(--foreground)",
+  },
+  ".cm-gutters": {
+    backgroundColor: "color-mix(in oklab, var(--card) 82%, var(--muted))",
+    borderRightColor: "var(--border)",
+    color: "var(--muted-foreground)",
+  },
+  ".cm-gutter": {
+    backgroundColor: "transparent",
+  },
+  ".cm-gutterElement": {
+    color: "var(--muted-foreground)",
+  },
+  ".cm-activeLine, .cm-activeLineGutter": {
+    backgroundColor: "color-mix(in oklab, var(--accent) 38%, transparent)",
+  },
+})
 
 const MIN_EDITOR_HEIGHT = 160
 const MAX_EDITOR_HEIGHT_RATIO = 0.75
@@ -166,9 +199,10 @@ export function Editor(props: Props) {
       <CodeMirror
         value={value}
         height={`${editorHeight}px`}
-        extensions={[langs[lang]]}
+        extensions={[langs[lang], devxEditorTheme]}
         onChange={onChange}
         className="devx-code-editor"
+        theme="none"
       />
       <div
         role="separator"

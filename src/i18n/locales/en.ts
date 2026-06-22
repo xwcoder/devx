@@ -21,7 +21,7 @@ export const en = {
   "language.current": "Language: {{language}}",
   "language.en": "English",
   "language.label": "Language",
-  "language.zh-CN": "Simplified Chinese",
+  "language.zh-CN": "简体中文",
   "preview.json": "JSON Preview",
   "preview.parsedJson": "Parsed JSON",
   "sidebar.mobileDescription": "Displays the mobile sidebar.",
