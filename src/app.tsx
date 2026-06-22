@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { AppContext } from "@/context"
 import Application from "@/application"
+import { startWindowDrag } from "@/lib/window-drag"
 import { useTranslation } from "react-i18next"
 
 const SIDEBAR_WIDTH_KEY = "devx:sidebar-width"
@@ -113,6 +114,7 @@ export default function App() {
             <div
               data-tauri-drag-region
               className="absolute inset-y-0 left-12 right-28"
+              onPointerDown={startWindowDrag}
             />
             <SidebarTrigger className="relative rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground" />
             <div className="relative ml-auto flex items-center gap-1">

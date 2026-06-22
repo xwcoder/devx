@@ -16,6 +16,7 @@ import {
 
 import { appGroups, apps } from "@/apps"
 import { useAppState, useAppDispatch } from '@/context'
+import { startWindowDrag } from "@/lib/window-drag"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation()
@@ -32,6 +33,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div
           data-tauri-drag-region
           className="absolute inset-x-0 top-0 h-12"
+          onPointerDown={startWindowDrag}
         />
         <div className="flex h-11 items-center gap-3 rounded-lg px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
