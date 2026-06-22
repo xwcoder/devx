@@ -8,6 +8,7 @@ import { css } from "@codemirror/lang-css"
 import { xml } from "@codemirror/lang-xml"
 import { Button } from "@/components/ui/button"
 import { Plus, Minus } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 type Props = {
   value: string
@@ -36,6 +37,7 @@ const langLabels = {
 }
 
 export function Editor(props: Props) {
+  const { t } = useTranslation()
   const {
     value,
     onChange,
@@ -63,7 +65,7 @@ export function Editor(props: Props) {
           <Button
             size="icon"
             variant="ghost"
-            title="Decrease editor height"
+            title={t("editor.decreaseHeight")}
             className="size-7 rounded-md text-muted-foreground hover:text-foreground"
             onClick={() => handleHeightChange(-10)}
           >
@@ -75,7 +77,7 @@ export function Editor(props: Props) {
           <Button
             size="icon"
             variant="ghost"
-            title="Increase editor height"
+            title={t("editor.increaseHeight")}
             className="size-7 rounded-md text-muted-foreground hover:text-foreground"
             onClick={() => handleHeightChange(10)}
           >

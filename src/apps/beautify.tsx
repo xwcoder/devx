@@ -1,5 +1,6 @@
 import { useState, ComponentProps } from "react"
 import beautify from "js-beautify"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
@@ -19,6 +20,7 @@ const methods = {
 }
 
 export default function BeautifyApp(props: Props) {
+  const { t } = useTranslation()
   const {
     lang,
     height = 60,
@@ -54,7 +56,7 @@ export default function BeautifyApp(props: Props) {
         height={height}
       />
       <ToolActions>
-        <Button onClick={format}>Beautify</Button>
+        <Button onClick={format}>{t("tool.beautify")}</Button>
         <CopyButton content={content} />
       </ToolActions>
       <ToolError error={error} />

@@ -1,5 +1,6 @@
 import * as React from "react"
 import { SquareTerminal } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import {
   Sidebar,
@@ -17,6 +18,7 @@ import { appGroups, apps } from "@/apps"
 import { useAppState, useAppDispatch } from '@/context'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { t } = useTranslation()
   const { app }= useAppState()
   const dispatch = useAppDispatch()
 
@@ -36,7 +38,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               DevX
             </div>
             <div className="truncate text-xs text-sidebar-foreground/60">
-              Developer utilities
+              {t("brand.subtitle")}
             </div>
           </div>
         </div>
@@ -48,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           return (
             <SidebarGroup key={group.name} className="px-2 py-1.5">
               <SidebarGroupLabel className="px-2 text-[11px] font-semibold tracking-normal text-sidebar-foreground/55">
-                {group.title}
+                {t(group.titleKey)}
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>

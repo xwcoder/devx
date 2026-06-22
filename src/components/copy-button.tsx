@@ -1,6 +1,7 @@
 import { ComponentProps, useState, useEffect } from "react"
 import { Check, Copy } from "lucide-react"
 import { cva } from "class-variance-authority"
+import { useTranslation } from "react-i18next"
 import { Button } from "./button"
 import { copyToClipboard } from "@/lib/copy"
 import { cn } from "@/lib/utils"
@@ -21,10 +22,11 @@ const iconVariants = cva("w-4 h-4", {
 
 export function CopyButton({
   content,
-  text = "Copy",
+  text,
   variant = "secondary",
   ...props
 }: Props) {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const [showIcon, setShowIcon] = useState(false)
 
@@ -64,9 +66,9 @@ export function CopyButton({
       ) : (
         <Copy className="size-4" />
       )}
-      {showIcon ? "Copied" : text}
+      {showIcon ? t("common.copied") : text ?? t("common.copy")}
       {showIcon && (
-        <span className="sr-only">copied</span>
+        <span className="sr-only">{t("common.copied")}</span>
       )}
     </Button>
   )

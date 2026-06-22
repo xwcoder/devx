@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react"
 
 import { AppSidebar } from "@/components/app-sidebar"
+import { LanguageToggle } from "@/components/language-toggle"
 import { ThemeToggle } from "@/components/theme-toggle"
 import {
   SidebarInset,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { AppContext } from "@/context"
 import Application from "@/application"
+import { useTranslation } from "react-i18next"
 
 const SIDEBAR_WIDTH_KEY = "devx:sidebar-width"
 const DEFAULT_SIDEBAR_WIDTH = 220
@@ -42,6 +44,7 @@ function SidebarResizeHandle({
 }: {
   onResizeStart: (event: ReactMouseEvent<HTMLDivElement>) => void
 }) {
+  const { t } = useTranslation()
   const { isMobile, state } = useSidebar()
 
   if (isMobile || state === "collapsed") {
@@ -50,7 +53,7 @@ function SidebarResizeHandle({
 
   return (
     <div
-      aria-label="Resize sidebar"
+      aria-label={t("sidebar.resize")}
       aria-orientation="vertical"
       role="separator"
       style={{ left: "var(--sidebar-width)" }}
@@ -113,6 +116,7 @@ export default function App() {
               DevX
             </span>
             <div className="ml-auto flex items-center gap-1">
+              <LanguageToggle />
               <ThemeToggle />
             </div>
           </header>

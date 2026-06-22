@@ -2,6 +2,7 @@ import { useState } from "react"
 import yaml from "js-yaml"
 import JSONView from "@uiw/react-json-view"
 import { nordTheme } from "@uiw/react-json-view/nord"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
@@ -13,6 +14,7 @@ import {
 } from "@/components/tool-workspace"
 
 export default function YmlCheckApp() {
+  const { t } = useTranslation()
   const [content, setContent] = useState("")
   const [error, setError] = useState<Error | null>(null)
   const [json, setJson] = useState<any>(null)
@@ -42,21 +44,21 @@ export default function YmlCheckApp() {
         height={30}
       />
       <ToolActions>
-        <Button onClick={check}>Check</Button>
+        <Button onClick={check}>{t("tool.check")}</Button>
         <CopyButton
           content={content}
-          text="Copy YML"
+          text={t("copy.yml")}
         />
         {json && (
           <CopyButton
             content={JSON.stringify(json, null, 2)}
-            text="Copy JSON"
+            text={t("copy.json")}
           />
         )}
       </ToolActions>
       <ToolError error={error} />
       {json && (
-        <ToolPreview title="Parsed JSON">
+        <ToolPreview title={t("preview.parsedJson")}>
           <JSONView
             value={json}
             style={nordTheme}

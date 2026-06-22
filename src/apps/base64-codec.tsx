@@ -3,8 +3,10 @@ import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
 import { Button } from "@/components/button"
 import { ToolActions, ToolError, ToolWorkspace } from "@/components/tool-workspace"
+import { useTranslation } from "react-i18next"
 
 export default function Base64CodecApp() {
+  const { t } = useTranslation()
   const [content, setContent] = useState("")
   const [error, setError] = useState<Error | null>(null)
 
@@ -44,8 +46,8 @@ export default function Base64CodecApp() {
         label="Base64"
       />
       <ToolActions>
-        <Button onClick={encode}>Encode</Button>
-        <Button onClick={decode}>Decode</Button>
+        <Button onClick={encode}>{t("tool.encode")}</Button>
+        <Button onClick={decode}>{t("tool.decode")}</Button>
         <CopyButton content={content} />
       </ToolActions>
       <ToolError error={error} />

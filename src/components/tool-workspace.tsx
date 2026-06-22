@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { CircleAlert } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 
@@ -58,8 +59,10 @@ type ToolPreviewProps = ToolWorkspaceProps & {
 export function ToolPreview({
   children,
   className,
-  title = "Preview",
+  title,
 }: ToolPreviewProps) {
+  const { t } = useTranslation()
+
   return (
     <section
       className={cn(
@@ -69,7 +72,7 @@ export function ToolPreview({
     >
       <div className="flex h-10 items-center border-b border-border/70 bg-muted/35 px-3">
         <span className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">
-          {title}
+          {title ?? t("common.preview")}
         </span>
       </div>
       <div className="overflow-auto p-3">{children}</div>

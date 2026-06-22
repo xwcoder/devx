@@ -1,5 +1,6 @@
 import { Monitor, Moon, Sun } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,22 +19,22 @@ type ResolvedTheme = "light" | "dark"
 
 const themeOptions: Array<{
   value: ThemeMode
-  label: string
+  labelKey: string
   icon: typeof Sun
 }> = [
   {
     value: "light",
-    label: "Light",
+    labelKey: "theme.light",
     icon: Sun,
   },
   {
     value: "dark",
-    label: "Dark",
+    labelKey: "theme.dark",
     icon: Moon,
   },
   {
     value: "system",
-    label: "System",
+    labelKey: "theme.system",
     icon: Monitor,
   },
 ]
@@ -70,6 +71,7 @@ function applyTheme(resolvedTheme: ResolvedTheme) {
 }
 
 export function ThemeToggle() {
+  const { t } = useTranslation()
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme)
   const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(getSystemTheme)
 
@@ -77,11 +79,14 @@ export function ThemeToggle() {
   const TriggerIcon = resolvedTheme === "dark" ? Moon : Sun
 
   const activeLabel = useMemo(() => {
-    const modeLabel = themeOptions.find((option) => option.value === theme)?.label
+    const option = themeOptions.find((option) => option.value === theme)
+    const modeLabel = option ? t(option.labelKey) : t("theme.label")
     return theme === "system"
-      ? `${modeLabel} (${resolvedTheme})`
-      : modeLabel ?? "Theme"
-  }, [resolvedTheme, theme])
+      ? `${modeLabel} (${t(`theme.resolved.${resolvedTheme}`)})`
+      : modeLabel
+  }, [resolvedTheme, t, theme])
+
+  const label = t("theme.current", { theme: activeLabel })
 
   useEffect(() => {
     const mediaQuery = window.matchMedia(THEME_QUERY)
@@ -107,10 +112,10 @@ export function ThemeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          aria-label={`Theme: ${activeLabel}`}
+          aria-label={label}
           className="group rounded-lg text-muted-foreground hover:text-foreground"
           size="icon"
-          title={`Theme: ${activeLabel}`}
+          title={label}
           variant="ghost"
         >
           <TriggerIcon className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-12" />
@@ -127,7 +132,7 @@ export function ThemeToggle() {
             return (
               <DropdownMenuRadioItem key={option.value} value={option.value}>
                 <Icon className="size-4 text-muted-foreground" />
-                <span>{option.label}</span>
+                <span>{t(option.labelKey)}</span>
               </DropdownMenuRadioItem>
             )
           })}
