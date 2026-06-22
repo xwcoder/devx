@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react"
 
 import { AppSidebar } from "@/components/app-sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
 import {
   SidebarInset,
   SidebarProvider,
@@ -111,6 +112,9 @@ export default function App() {
             <span className="text-sm font-medium text-muted-foreground">
               DevX
             </span>
+            <div className="ml-auto flex items-center gap-1">
+              <ThemeToggle />
+            </div>
           </header>
           <main className="p-5 sm:p-6">
             <Application />
