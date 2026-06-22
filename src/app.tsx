@@ -13,6 +13,7 @@ import {
 import { AppContext } from "@/context"
 import Application from "@/application"
 import { startWindowDrag, toggleWindowMaximize } from "@/lib/window-drag"
+import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
 
 const SIDEBAR_WIDTH_KEY = "devx:sidebar-width"
@@ -66,6 +67,30 @@ function SidebarResizeHandle({
   )
 }
 
+function AppHeader() {
+  const { state } = useSidebar()
+
+  return (
+    <header
+      className={cn(
+        "sticky top-0 z-20 flex h-12 items-center gap-2 bg-sidebar/90 pr-3 backdrop-blur transition-[padding] duration-200 ease-linear sm:pr-4",
+        state === "collapsed" ? "pl-12 sm:pl-14" : "pl-3 sm:pl-4"
+      )}
+    >
+      <div
+        className="absolute inset-y-0 left-12 right-28"
+        onDoubleClick={toggleWindowMaximize}
+        onPointerDown={startWindowDrag}
+      />
+      <SidebarTrigger className="relative size-8 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground" />
+      <div className="relative ml-auto flex items-center gap-1">
+        <LanguageToggle />
+        <ThemeToggle />
+      </div>
+    </header>
+  )
+}
+
 export default function App() {
   const [sidebarWidth, setSidebarWidth] = useState(getInitialSidebarWidth)
 
@@ -110,18 +135,7 @@ export default function App() {
         <AppSidebar />
         <SidebarResizeHandle onResizeStart={startSidebarResize} />
         <SidebarInset className="min-w-0 bg-background">
-          <header className="sticky top-0 z-20 flex h-12 items-center gap-2 bg-sidebar/90 px-3 backdrop-blur sm:px-4">
-            <div
-              className="absolute inset-y-0 left-12 right-28"
-              onDoubleClick={toggleWindowMaximize}
-              onPointerDown={startWindowDrag}
-            />
-            <SidebarTrigger className="relative rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground" />
-            <div className="relative ml-auto flex items-center gap-1">
-              <LanguageToggle />
-              <ThemeToggle />
-            </div>
-          </header>
+          <AppHeader />
           <main className="px-5 pb-5 pt-3 sm:px-6 sm:pb-6 sm:pt-4">
             <Application />
           </main>
