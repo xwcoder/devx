@@ -13,6 +13,7 @@ type Props = {
   value: string
   onChange: (value: string) => void
   lang: "javascript" | "json" | "yaml" | "html" | "css" | "xml"
+  label?: string
   height?: number
 }
 
@@ -25,11 +26,21 @@ const langs = {
   xml: xml(),
 }
 
+const langLabels = {
+  javascript: "JavaScript",
+  json: "JSON",
+  yaml: "YAML",
+  html: "HTML",
+  css: "CSS",
+  xml: "XML",
+}
+
 export function Editor(props: Props) {
   const {
     value,
     onChange,
     lang,
+    label,
     height = 30,
   } = props
 
@@ -40,38 +51,45 @@ export function Editor(props: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-y-3">
-      <div className="flex justify-end items-center">
+    <div className="overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
+      <div className="flex h-10 items-center justify-between gap-3 border-b border-border/70 bg-muted/35 px-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="size-2 rounded-full bg-primary shadow-[0_0_0_3px_color-mix(in_oklab,var(--primary)_18%,transparent)]" />
+          <span className="truncate text-xs font-semibold uppercase tracking-normal text-muted-foreground">
+            {label ?? langLabels[lang]}
+          </span>
+        </div>
         <div className="flex items-center gap-x-2">
           <Button
             size="icon"
             variant="ghost"
-            className="size-6 text-muted-foreground"
+            title="Decrease editor height"
+            className="size-7 rounded-md text-muted-foreground hover:text-foreground"
             onClick={() => handleHeightChange(-10)}
           >
-            <Minus />
+            <Minus className="size-4" />
           </Button>
-          <span className="text-xs text-muted-foreground">
+          <span className="min-w-9 text-center text-xs tabular-nums text-muted-foreground">
             {h}%
           </span>
           <Button
             size="icon"
             variant="ghost"
-            className="size-6 text-muted-foreground"
+            title="Increase editor height"
+            className="size-7 rounded-md text-muted-foreground hover:text-foreground"
             onClick={() => handleHeightChange(10)}
           >
-            <Plus />
+            <Plus className="size-4" />
           </Button>
         </div>
       </div>
-      <div className="border rounded-md overflow-hidden">
-        <CodeMirror
-          value={value}
-          height={`${Math.max(h, 10)}vh`}
-          extensions={[langs[lang]]}
-          onChange={onChange}
-        />
-      </div>
+      <CodeMirror
+        value={value}
+        height={`${Math.max(h, 10)}vh`}
+        extensions={[langs[lang]]}
+        onChange={onChange}
+        className="devx-code-editor"
+      />
     </div>
   )
 }

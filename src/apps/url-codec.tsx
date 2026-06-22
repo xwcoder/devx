@@ -2,63 +2,62 @@ import { useState } from "react"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
+import { ToolActions, ToolError, ToolWorkspace } from "@/components/tool-workspace"
 
 export default function UrlCodecApp() {
   const [content, setContent] = useState("")
+  const [error, setError] = useState<Error | null>(null)
 
   const iEncodeURIComponent = () => {
+    setError(null)
     setContent(encodeURIComponent(content))
   }
 
   const iDecodeURIComponent = () => {
-    setContent(decodeURIComponent(content))
+    try {
+      setContent(decodeURIComponent(content))
+      setError(null)
+    } catch (error) {
+      setError(error as Error)
+    }
   }
 
   const iEncodeURI = () => {
+    setError(null)
     setContent(encodeURI(content))
   }
 
   const iDecodeURI = () => {
-    setContent(decodeURI(content))
+    try {
+      setContent(decodeURI(content))
+      setError(null)
+    } catch (error) {
+      setError(error as Error)
+    }
   }
 
   const onChange = (value: string) => {
     setContent(value)
+    setError(null)
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <ToolWorkspace>
       <Editor
         value={content}
         onChange={onChange}
         lang="json"
+        label="URI"
         height={30}
       />
-      <div className="flex gap-x-4">
-        <Button
-          onClick={iEncodeURIComponent}
-        >
-          encodeURIComponent
-        </Button>
-        <Button
-          onClick={iDecodeURIComponent}
-        >
-          decodeURIComponent
-        </Button>
-        <Button
-          onClick={iEncodeURI}
-        >
-          encodeURI
-        </Button>
-        <Button
-          onClick={iDecodeURI}
-        >
-          decodeURI
-        </Button>
-        <CopyButton
-          content={content}
-        />
-      </div>
-    </div>
+      <ToolActions>
+        <Button onClick={iEncodeURIComponent}>encodeURIComponent</Button>
+        <Button onClick={iDecodeURIComponent}>decodeURIComponent</Button>
+        <Button onClick={iEncodeURI}>encodeURI</Button>
+        <Button onClick={iDecodeURI}>decodeURI</Button>
+        <CopyButton content={content} />
+      </ToolActions>
+      <ToolError error={error} />
+    </ToolWorkspace>
   )
 }

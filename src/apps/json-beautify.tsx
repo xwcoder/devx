@@ -4,6 +4,12 @@ import { nordTheme } from "@uiw/react-json-view/nord"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
+import {
+  ToolActions,
+  ToolError,
+  ToolPreview,
+  ToolWorkspace,
+} from "@/components/tool-workspace"
 
 export default function JsonBeautifyApp() {
   const [content, setContent] = useState("")
@@ -27,37 +33,26 @@ export default function JsonBeautifyApp() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <ToolWorkspace>
       <Editor
         value={content}
         onChange={onChange}
         lang="json"
       />
-      <div className="flex gap-x-4">
-        <Button
-          onClick={beautify}
-        >
-          Beautify
-        </Button>
-        <CopyButton
-          content={content}
-        />
-      </div>
-      {error && (
-        <div className="text-red-500">
-          {error.message}
-        </div>
-      )}
+      <ToolActions>
+        <Button onClick={beautify}>Beautify</Button>
+        <CopyButton content={content} />
+      </ToolActions>
+      <ToolError error={error} />
       {jsonObject && (
-        <div>
+        <ToolPreview title="JSON Preview">
           <JSONView
-            className="p-2"
             value={jsonObject}
             style={nordTheme}
             displayDataTypes={false}
           />
-        </div>
+        </ToolPreview>
       )}
-    </div>
+    </ToolWorkspace>
   )
 }

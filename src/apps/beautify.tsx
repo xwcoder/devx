@@ -3,6 +3,7 @@ import beautify from "js-beautify"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
+import { ToolActions, ToolError, ToolWorkspace } from "@/components/tool-workspace"
 
 type EditorProps = ComponentProps<typeof Editor>
 
@@ -45,28 +46,18 @@ export default function BeautifyApp(props: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <ToolWorkspace>
       <Editor
         value={content}
         onChange={onChange}
         lang={lang}
         height={height}
       />
-      <div className="flex gap-x-4">
-      <Button
-        onClick={format}
-      >
-        Beautify
-      </Button>
-      <CopyButton
-        content={content}
-      />
-      </div>
-      {error && (
-        <div className="text-red-500">
-          {error.message}
-        </div>
-      )}
-    </div>
+      <ToolActions>
+        <Button onClick={format}>Beautify</Button>
+        <CopyButton content={content} />
+      </ToolActions>
+      <ToolError error={error} />
+    </ToolWorkspace>
   )
 }

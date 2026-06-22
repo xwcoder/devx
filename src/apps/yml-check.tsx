@@ -5,6 +5,12 @@ import { nordTheme } from "@uiw/react-json-view/nord"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
+import {
+  ToolActions,
+  ToolError,
+  ToolPreview,
+  ToolWorkspace,
+} from "@/components/tool-workspace"
 
 export default function YmlCheckApp() {
   const [content, setContent] = useState("")
@@ -28,19 +34,15 @@ export default function YmlCheckApp() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <ToolWorkspace>
       <Editor
         value={content}
         onChange={onChange}
         lang="yaml"
         height={30}
       />
-      <div className="flex gap-x-4">
-        <Button
-          onClick={check}
-        >
-          Check
-        </Button>
+      <ToolActions>
+        <Button onClick={check}>Check</Button>
         <CopyButton
           content={content}
           text="Copy YML"
@@ -51,20 +53,17 @@ export default function YmlCheckApp() {
             text="Copy JSON"
           />
         )}
-      </div>
-      {error && (
-        <div className="text-red-500">
-          {error.message}
-        </div>
-      )}
+      </ToolActions>
+      <ToolError error={error} />
       {json && (
-        <JSONView
-          value={json}
-          style={nordTheme}
-          displayDataTypes={false}
-          className="p-2"
-        />
+        <ToolPreview title="Parsed JSON">
+          <JSONView
+            value={json}
+            style={nordTheme}
+            displayDataTypes={false}
+          />
+        </ToolPreview>
       )}
-    </div>
+    </ToolWorkspace>
   )
 }
