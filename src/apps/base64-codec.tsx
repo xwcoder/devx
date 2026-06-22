@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Binary, LetterText } from "lucide-react"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
 import { Button } from "@/components/button"
@@ -39,17 +40,23 @@ export default function Base64CodecApp() {
 
   return (
     <ToolWorkspace>
+      <ToolActions>
+        <Button onClick={encode}>
+          <Binary className="size-4" />
+          {t("tool.encode")}
+        </Button>
+        <Button onClick={decode}>
+          <LetterText className="size-4" />
+          {t("tool.decode")}
+        </Button>
+        <CopyButton content={content} />
+      </ToolActions>
       <Editor
         value={content}
         onChange={onChange}
         lang="json"
         label="Base64"
       />
-      <ToolActions>
-        <Button onClick={encode}>{t("tool.encode")}</Button>
-        <Button onClick={decode}>{t("tool.decode")}</Button>
-        <CopyButton content={content} />
-      </ToolActions>
       <ToolError error={error} />
     </ToolWorkspace>
   )

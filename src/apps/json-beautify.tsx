@@ -1,6 +1,7 @@
 import { useState } from "react"
 import JSONView from "@uiw/react-json-view"
 import { nordTheme } from "@uiw/react-json-view/nord"
+import { WandSparkles } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
@@ -36,15 +37,18 @@ export default function JsonBeautifyApp() {
 
   return (
     <ToolWorkspace>
+      <ToolActions>
+        <Button onClick={beautify}>
+          <WandSparkles className="size-4" />
+          {t("tool.beautify")}
+        </Button>
+        <CopyButton content={content} />
+      </ToolActions>
       <Editor
         value={content}
         onChange={onChange}
         lang="json"
       />
-      <ToolActions>
-        <Button onClick={beautify}>{t("tool.beautify")}</Button>
-        <CopyButton content={content} />
-      </ToolActions>
       <ToolError error={error} />
       {jsonObject && (
         <ToolPreview title={t("preview.json")}>

@@ -2,6 +2,7 @@ import { useState } from "react"
 import yaml from "js-yaml"
 import JSONView from "@uiw/react-json-view"
 import { nordTheme } from "@uiw/react-json-view/nord"
+import { CircleCheckBig } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
@@ -37,14 +38,11 @@ export default function YmlCheckApp() {
 
   return (
     <ToolWorkspace>
-      <Editor
-        value={content}
-        onChange={onChange}
-        lang="yaml"
-        height={30}
-      />
       <ToolActions>
-        <Button onClick={check}>{t("tool.check")}</Button>
+        <Button onClick={check}>
+          <CircleCheckBig className="size-4" />
+          {t("tool.check")}
+        </Button>
         <CopyButton
           content={content}
           text={t("copy.yml")}
@@ -56,6 +54,12 @@ export default function YmlCheckApp() {
           />
         )}
       </ToolActions>
+      <Editor
+        value={content}
+        onChange={onChange}
+        lang="yaml"
+        height={30}
+      />
       <ToolError error={error} />
       {json && (
         <ToolPreview title={t("preview.parsedJson")}>

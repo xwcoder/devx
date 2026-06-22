@@ -7,7 +7,7 @@ type Props = ComponentProps<typeof BaseButton>
 export function Button({
   children,
   className,
-  variant = "default",
+  variant = "ghost",
   size = "sm",
   ...props
 }: Props) {
@@ -16,7 +16,8 @@ export function Button({
       variant={variant}
       size={size}
       className={cn(
-        "transition-all duration-150 active:translate-y-px",
+        "rounded-lg transition-all duration-150 active:translate-y-px",
+        variant === "ghost" && "text-muted-foreground hover:text-foreground",
         variant === "default" && "shadow-sm hover:shadow-md",
         className
       )}

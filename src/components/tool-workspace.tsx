@@ -26,7 +26,7 @@ export function ToolActions({ children, className }: ToolWorkspaceProps) {
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-lg border border-border/70 bg-card/80 p-2 shadow-sm",
+        "animate-in fade-in slide-in-from-top-1 flex flex-wrap items-center gap-1.5 duration-200",
         className
       )}
     >

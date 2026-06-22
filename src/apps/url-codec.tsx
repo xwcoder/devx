@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Braces, Code2 } from "lucide-react"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
 import { Editor } from "@/components/editor"
@@ -43,6 +44,25 @@ export default function UrlCodecApp() {
 
   return (
     <ToolWorkspace>
+      <ToolActions>
+        <Button onClick={iEncodeURIComponent}>
+          <Braces className="size-4" />
+          encodeURIComponent
+        </Button>
+        <Button onClick={iDecodeURIComponent}>
+          <Braces className="size-4" />
+          decodeURIComponent
+        </Button>
+        <Button onClick={iEncodeURI}>
+          <Code2 className="size-4" />
+          encodeURI
+        </Button>
+        <Button onClick={iDecodeURI}>
+          <Code2 className="size-4" />
+          decodeURI
+        </Button>
+        <CopyButton content={content} />
+      </ToolActions>
       <Editor
         value={content}
         onChange={onChange}
@@ -50,13 +70,6 @@ export default function UrlCodecApp() {
         label="URI"
         height={30}
       />
-      <ToolActions>
-        <Button onClick={iEncodeURIComponent}>encodeURIComponent</Button>
-        <Button onClick={iDecodeURIComponent}>decodeURIComponent</Button>
-        <Button onClick={iEncodeURI}>encodeURI</Button>
-        <Button onClick={iDecodeURI}>decodeURI</Button>
-        <CopyButton content={content} />
-      </ToolActions>
       <ToolError error={error} />
     </ToolWorkspace>
   )

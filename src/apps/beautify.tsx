@@ -1,5 +1,6 @@
 import { useState, ComponentProps } from "react"
 import beautify from "js-beautify"
+import { WandSparkles } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { Button } from "@/components/button"
 import { CopyButton } from "@/components/copy-button"
@@ -49,16 +50,19 @@ export default function BeautifyApp(props: Props) {
 
   return (
     <ToolWorkspace>
+      <ToolActions>
+        <Button onClick={format}>
+          <WandSparkles className="size-4" />
+          {t("tool.beautify")}
+        </Button>
+        <CopyButton content={content} />
+      </ToolActions>
       <Editor
         value={content}
         onChange={onChange}
         lang={lang}
         height={height}
       />
-      <ToolActions>
-        <Button onClick={format}>{t("tool.beautify")}</Button>
-        <CopyButton content={content} />
-      </ToolActions>
       <ToolError error={error} />
     </ToolWorkspace>
   )

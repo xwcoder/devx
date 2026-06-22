@@ -23,7 +23,7 @@ const iconVariants = cva("w-4 h-4", {
 export function CopyButton({
   content,
   text,
-  variant = "secondary",
+  variant = "ghost",
   ...props
 }: Props) {
   const { t } = useTranslation()
