@@ -86,65 +86,12 @@ jobs:
       - name: Build frontend
         run: pnpm build
 
-      - name: Setup macOS signing (macOS only)
-        if: matrix.os == 'macos-latest'
-        uses: apple-actions/import-codesigning-certs@v1
-        with:
-          p12-file-base64: ${{ secrets.MACOS_P12_BASE64 }}
-          p12-password: ${{ secrets.MACOS_P12_PASSWORD }}
-
-      - name: Setup App Store Connect API (macOS only)
-        if: matrix.os == 'macos-latest'
-        uses: apple-actions/app-store-connect-api@v1
-        with:
-          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-          api-issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-          api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
-
-      - name: Setup Provision Profile (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: |
-          if [ -n "${{ secrets.MACOS_PROVISION_PROFILE_BASE64 }}" ]; then
-            echo "设置 provision profile..."
-            echo "${{ secrets.MACOS_PROVISION_PROFILE_BASE64 }}" | base64 -d > src-tauri/embedded.provisionprofile
-            echo "✅ Provision profile 设置成功"
-          else
-            echo "⚠️ 未找到 provision profile，使用默认配置"
-            chmod +x scripts/setup-provision-profile.sh
-            ./scripts/setup-provision-profile.sh "${{ secrets.APPLE_TEAM_ID }}"
-
       - name: Build Tauri application
         run: pnpm tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_LINK: ${{ secrets.MACOS_P12_BASE64 }}
-          CSC_KEY_PASSWORD: ${{ secrets.MACOS_P12_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-
-      - name: Verify signing (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: |
-          echo "验证应用签名..."
-          codesign -dv --verbose=4 "src-tauri/target/${{ matrix.target }}/release/bundle/app/DevX.app"
-
-      - name: Notarize macOS app (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: |
-          xcrun notarytool submit \
-            --apple-id "${{ secrets.APPLE_ID }}" \
-            --password "${{ secrets.APPLE_ID_PASS }}" \
-            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
-            "src-tauri/target/${{ matrix.target }}/release/bundle/app/DevX.app" \
-            --wait
-
-      - name: Staple notarization (macOS only)
-        if: matrix.os == 'macos-latest'
-        run: |
-          xcrun stapler staple "src-tauri/target/${{ matrix.target }}/release/bundle/app/DevX.app"
 
       - name: Upload app artifacts
         uses: actions/upload-artifact@v4
@@ -317,8 +264,8 @@ jobs:
             - **Windows (x64)**: `devx-windows-x64.msi`
             
             #### macOS
-            - **macOS (Intel)**: `devx-macos-x64.dmg` - 已签名和公证
-            - **macOS (Apple Silicon)**: `devx-macos-arm64.dmg` - 已签名和公证
+            - **macOS (Intel)**: `devx-macos-x64.dmg`
+            - **macOS (Apple Silicon)**: `devx-macos-arm64.dmg`
             
             #### Linux
             - **Linux (x64)**: `devx-linux-x64.AppImage`
