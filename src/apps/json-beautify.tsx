@@ -1,4 +1,5 @@
 import { useState } from "react"
+import JSON5 from "json5"
 import JSONView from "@uiw/react-json-view"
 import { nordTheme } from "@uiw/react-json-view/nord"
 import { WandSparkles } from "lucide-react"
@@ -28,7 +29,7 @@ export default function JsonBeautifyApp() {
 
   const beautify = () => {
     try {
-      const obj = JSON.parse(content)
+      const obj = JSON5.parse(content)
       setContent(JSON.stringify(obj, null, 2))
       setJsonObject(obj)
     } catch (error) {
