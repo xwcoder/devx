@@ -11,6 +11,9 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: write
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
@@ -145,11 +148,6 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.34.1
-
       - name: Get version
         id: get_version
         run: |
@@ -165,148 +163,164 @@ jobs:
           path: artifacts
 
       - name: Generate updater manifest
-        uses: actions/github-script@v7
+        run: |
+          node <<'EOF'
+          const fs = require("fs")
+          const path = require("path")
+
+          const releaseVersion = process.env.RELEASE_VERSION
+          const manifestVersion = releaseVersion.replace(/^v/, "")
+          const releaseBaseUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/releases/download/${releaseVersion}`
+
+          function walk(dir) {
+            if (!fs.existsSync(dir)) {
+              return []
+            }
+
+            return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+              const entryPath = path.join(dir, entry.name)
+              return entry.isDirectory() ? walk(entryPath) : [entryPath]
+            })
+          }
+
+          function findUpdaterPackage(artifactDir, signaturePatterns) {
+            const files = walk(artifactDir)
+
+            for (const pattern of signaturePatterns) {
+              const signaturePath = files.find((file) => pattern.test(file))
+
+              if (!signaturePath) {
+                continue
+              }
+
+              const packagePath = signaturePath.replace(/\.sig$/, "")
+              if (!fs.existsSync(packagePath)) {
+                continue
+              }
+
+              return {
+                packagePath,
+                signature: fs.readFileSync(signaturePath, "utf8").trim(),
+              }
+            }
+
+            throw new Error(`Missing updater package in ${artifactDir}`)
+          }
+
+          const platformArtifacts = [
+            {
+              key: "darwin-x86_64",
+              artifactDir: "artifacts/devx-macos-x64-app",
+              signaturePatterns: [/\.app\.tar\.gz\.sig$/],
+            },
+            {
+              key: "darwin-aarch64",
+              artifactDir: "artifacts/devx-macos-arm64-app",
+              signaturePatterns: [/\.app\.tar\.gz\.sig$/],
+            },
+            {
+              key: "linux-x86_64",
+              artifactDir: "artifacts/devx-linux-x64-appimage",
+              signaturePatterns: [/\.AppImage\.tar\.gz\.sig$/, /\.AppImage\.sig$/],
+            },
+            {
+              key: "windows-x86_64",
+              artifactDir: "artifacts/devx-windows-x64-msi",
+              signaturePatterns: [/\.msi\.zip\.sig$/, /\.msi\.sig$/],
+            },
+          ]
+
+          const platforms = Object.fromEntries(
+            platformArtifacts.map((platform) => {
+              const updaterPackage = findUpdaterPackage(
+                platform.artifactDir,
+                platform.signaturePatterns
+              )
+
+              return [
+                platform.key,
+                {
+                  signature: updaterPackage.signature,
+                  url: `${releaseBaseUrl}/${path.basename(updaterPackage.packagePath)}`,
+                },
+              ]
+            })
+          )
+
+          fs.writeFileSync(
+            "latest.json",
+            `${JSON.stringify(
+              {
+                version: manifestVersion,
+                notes: "See the GitHub Release for details.",
+                pub_date: new Date().toISOString(),
+                platforms,
+              },
+              null,
+              2
+            )}\n`
+          )
+          EOF
         env:
           RELEASE_VERSION: ${{ steps.get_version.outputs.version }}
-        with:
-          script: |
-            const fs = require("fs")
-            const path = require("path")
 
-            const releaseVersion = process.env.RELEASE_VERSION
-            const manifestVersion = releaseVersion.replace(/^v/, "")
-            const repo = `${context.repo.owner}/${context.repo.repo}`
-            const releaseBaseUrl = `https://github.com/${repo}/releases/download/${releaseVersion}`
+      - name: Create release notes
+        run: |
+          cat > release-notes.md <<'EOF'
+          ## DevX ${{ steps.get_version.outputs.version }}
 
-            function walk(dir) {
-              if (!fs.existsSync(dir)) {
-                return []
-              }
+          ### Downloads
 
-              return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-                const entryPath = path.join(dir, entry.name)
-                return entry.isDirectory() ? walk(entryPath) : [entryPath]
-              })
-            }
+          #### Windows
+          - **Windows (x64)**: MSI installer
 
-            function findUpdaterPackage(artifactDir, signaturePatterns) {
-              const files = walk(artifactDir)
+          #### macOS
+          - **macOS (Intel)**: DMG installer
+          - **macOS (Apple Silicon)**: DMG installer
 
-              for (const pattern of signaturePatterns) {
-                const signaturePath = files.find((file) => pattern.test(file))
+          #### Linux
+          - **Linux (x64)**: AppImage
 
-                if (!signaturePath) {
-                  continue
-                }
+          ### Changes
 
-                const packagePath = signaturePath.replace(/\.sig$/, "")
-                if (!fs.existsSync(packagePath)) {
-                  continue
-                }
+          See the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+          EOF
 
-                return {
-                  packagePath,
-                  signature: fs.readFileSync(signaturePath, "utf8").trim(),
-                }
-              }
+      - name: Collect release assets
+        run: |
+          {
+            echo "latest.json"
+            find artifacts -type f \( \
+              -name '*.AppImage' -o \
+              -name '*.dmg' -o \
+              -name '*.msi' -o \
+              -name '*.sig' -o \
+              -name '*.tar.gz' -o \
+              -name '*.zip' \
+            \) | sort
+          } > release-assets.txt
 
-              throw new Error(`Missing updater package in ${artifactDir}`)
-            }
+          echo "Release assets:"
+          cat release-assets.txt
 
-            const platformArtifacts = [
-              {
-                key: "darwin-x86_64",
-                artifactDir: "artifacts/devx-macos-x64-app",
-                signaturePatterns: [/\.app\.tar\.gz\.sig$/],
-              },
-              {
-                key: "darwin-aarch64",
-                artifactDir: "artifacts/devx-macos-arm64-app",
-                signaturePatterns: [/\.app\.tar\.gz\.sig$/],
-              },
-              {
-                key: "linux-x86_64",
-                artifactDir: "artifacts/devx-linux-x64-appimage",
-                signaturePatterns: [/\.AppImage\.tar\.gz\.sig$/, /\.AppImage\.sig$/],
-              },
-              {
-                key: "windows-x86_64",
-                artifactDir: "artifacts/devx-windows-x64-msi",
-                signaturePatterns: [/\.msi\.zip\.sig$/, /\.msi\.sig$/],
-              },
-            ]
+      - name: Create GitHub Release
+        run: |
+          mapfile -t assets < release-assets.txt
 
-            const platforms = Object.fromEntries(
-              platformArtifacts.map((platform) => {
-                const updaterPackage = findUpdaterPackage(
-                  platform.artifactDir,
-                  platform.signaturePatterns
-                )
+          if gh release view "$RELEASE_VERSION" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_VERSION" \
+              --title "Release $RELEASE_VERSION" \
+              --notes-file release-notes.md \
+              --latest
 
-                return [
-                  platform.key,
-                  {
-                    signature: updaterPackage.signature,
-                    url: `${releaseBaseUrl}/${path.basename(updaterPackage.packagePath)}`,
-                  },
-                ]
-              })
-            )
-
-            fs.writeFileSync(
-              "latest.json",
-              `${JSON.stringify(
-                {
-                  version: manifestVersion,
-                  notes: "See the GitHub Release for details.",
-                  pub_date: new Date().toISOString(),
-                  platforms,
-                },
-                null,
-                2
-              )}\n`
-            )
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          name: Release ${{ steps.get_version.outputs.version }}
-          body: |
-            ## DevX ${{ steps.get_version.outputs.version }}
-            
-            ### Downloads
-            
-            #### Windows
-            - **Windows (x64)**: `devx-windows-x64.msi`
-            
-            #### macOS
-            - **macOS (Intel)**: `devx-macos-x64.dmg`
-            - **macOS (Apple Silicon)**: `devx-macos-arm64.dmg`
-            
-            #### Linux
-            - **Linux (x64)**: `devx-linux-x64.AppImage`
-            
-            ### Changes
-            
-            See the [changelog](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
-          draft: false
-          prerelease: false
-          files: |
-            latest.json
-            artifacts/devx-windows-x64-msi/*.msi
-            artifacts/devx-windows-x64-msi/**/*.msi
-            artifacts/devx-windows-x64-msi/**/*.zip
-            artifacts/devx-windows-x64-msi/**/*.sig
-            artifacts/devx-macos-x64-dmg/*.dmg
-            artifacts/devx-macos-arm64-dmg/*.dmg
-            artifacts/devx-macos-x64-app/**/*.tar.gz
-            artifacts/devx-macos-x64-app/**/*.sig
-            artifacts/devx-macos-arm64-app/**/*.tar.gz
-            artifacts/devx-macos-arm64-app/**/*.sig
-            artifacts/devx-linux-x64-appimage/*.AppImage
-            artifacts/devx-linux-x64-appimage/**/*.AppImage
-            artifacts/devx-linux-x64-appimage/**/*.tar.gz
-            artifacts/devx-linux-x64-appimage/**/*.sig
+            gh release upload "$RELEASE_VERSION" "${assets[@]}" --clobber
+          else
+            gh release create "$RELEASE_VERSION" "${assets[@]}" \
+              --verify-tag \
+              --title "Release $RELEASE_VERSION" \
+              --notes-file release-notes.md \
+              --latest
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.get_version.outputs.version }}
