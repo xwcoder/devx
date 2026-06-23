@@ -24,6 +24,7 @@ export const zh = {
   "language.zh-CN": "简体中文",
   "preview.json": "JSON 预览",
   "preview.parsedJson": "解析后的 JSON",
+  "preview.resizeHeight": "调整预览高度",
   "sidebar.mobileDescription": "显示移动端侧边栏。",
   "sidebar.resize": "调整侧边栏宽度",
   "sidebar.title": "侧边栏",

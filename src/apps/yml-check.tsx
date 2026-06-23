@@ -10,6 +10,7 @@ import { Editor } from "@/components/editor"
 import {
   ToolActions,
   ToolError,
+  ToolPanels,
   ToolPreview,
   ToolWorkspace,
 } from "@/components/tool-workspace"
@@ -54,22 +55,31 @@ export default function YmlCheckApp() {
           />
         )}
       </ToolActions>
-      <Editor
-        value={content}
-        onChange={onChange}
-        lang="yaml"
-        height={30}
-      />
-      <ToolError error={error} />
-      {json && (
-        <ToolPreview title={t("preview.parsedJson")}>
-          <JSONView
-            value={json}
-            style={nordTheme}
-            displayDataTypes={false}
+      {json ? (
+        <ToolPanels>
+          <Editor
+            value={content}
+            onChange={onChange}
+            lang="yaml"
+            height={60}
           />
-        </ToolPreview>
+          <ToolPreview title={t("preview.parsedJson")}>
+            <JSONView
+              value={json}
+              style={nordTheme}
+              displayDataTypes={false}
+            />
+          </ToolPreview>
+        </ToolPanels>
+      ) : (
+        <Editor
+          value={content}
+          onChange={onChange}
+          lang="yaml"
+          height={60}
+        />
       )}
+      <ToolError error={error} />
     </ToolWorkspace>
   )
 }

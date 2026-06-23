@@ -24,6 +24,7 @@ export const en = {
   "language.zh-CN": "简体中文",
   "preview.json": "JSON Preview",
   "preview.parsedJson": "Parsed JSON",
+  "preview.resizeHeight": "Resize preview height",
   "sidebar.mobileDescription": "Displays the mobile sidebar.",
   "sidebar.resize": "Resize sidebar",
   "sidebar.title": "Sidebar",

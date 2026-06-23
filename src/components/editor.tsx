@@ -69,23 +69,11 @@ const devxEditorTheme = EditorView.theme({
 })
 
 const MIN_EDITOR_HEIGHT = 160
-const MAX_EDITOR_HEIGHT_RATIO = 0.75
 const KEYBOARD_RESIZE_STEP = 16
 const KEYBOARD_RESIZE_LARGE_STEP = 48
 
-function getMaxEditorHeight() {
-  if (typeof window === "undefined") {
-    return MIN_EDITOR_HEIGHT
-  }
-
-  return Math.max(
-    MIN_EDITOR_HEIGHT,
-    Math.round(window.innerHeight * MAX_EDITOR_HEIGHT_RATIO)
-  )
-}
-
 function clampEditorHeight(height: number) {
-  return Math.min(Math.max(height, MIN_EDITOR_HEIGHT), getMaxEditorHeight())
+  return Math.max(height, MIN_EDITOR_HEIGHT)
 }
 
 function getInitialEditorHeight(height: number) {
@@ -109,7 +97,6 @@ export function Editor(props: Props) {
   const [editorHeight, setEditorHeight] = useState(() =>
     getInitialEditorHeight(height)
   )
-  const maxEditorHeight = getMaxEditorHeight()
 
   const resizeBy = useCallback((delta: number) => {
     setEditorHeight((currentHeight) => clampEditorHeight(currentHeight + delta))
@@ -165,11 +152,6 @@ export function Editor(props: Props) {
       setEditorHeight(MIN_EDITOR_HEIGHT)
       return
     }
-
-    if (event.key === "End") {
-      event.preventDefault()
-      setEditorHeight(getMaxEditorHeight())
-    }
   }
 
   useEffect(() => {
@@ -209,7 +191,6 @@ export function Editor(props: Props) {
         aria-label={t("editor.resizeHeight")}
         aria-orientation="horizontal"
         aria-valuemin={MIN_EDITOR_HEIGHT}
-        aria-valuemax={maxEditorHeight}
         aria-valuenow={editorHeight}
         tabIndex={0}
         className="group flex h-3 cursor-row-resize items-center justify-center border-t border-border/60 bg-muted/20 outline-none transition-colors hover:bg-accent/45 focus-visible:bg-accent/55 focus-visible:ring-2 focus-visible:ring-ring/55"

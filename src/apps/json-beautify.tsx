@@ -9,6 +9,7 @@ import { Editor } from "@/components/editor"
 import {
   ToolActions,
   ToolError,
+  ToolPanels,
   ToolPreview,
   ToolWorkspace,
 } from "@/components/tool-workspace"
@@ -44,21 +45,31 @@ export default function JsonBeautifyApp() {
         </Button>
         <CopyButton content={content} />
       </ToolActions>
-      <Editor
-        value={content}
-        onChange={onChange}
-        lang="json"
-      />
-      <ToolError error={error} />
-      {jsonObject && (
-        <ToolPreview title={t("preview.json")}>
-          <JSONView
-            value={jsonObject}
-            style={nordTheme}
-            displayDataTypes={false}
+      {jsonObject ? (
+        <ToolPanels>
+          <Editor
+            value={content}
+            onChange={onChange}
+            lang="json"
+            height={60}
           />
-        </ToolPreview>
+          <ToolPreview title={t("preview.json")}>
+            <JSONView
+              value={jsonObject}
+              style={nordTheme}
+              displayDataTypes={false}
+            />
+          </ToolPreview>
+        </ToolPanels>
+      ) : (
+        <Editor
+          value={content}
+          onChange={onChange}
+          lang="json"
+          height={60}
+        />
       )}
+      <ToolError error={error} />
     </ToolWorkspace>
   )
 }
