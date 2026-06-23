@@ -7,6 +7,7 @@ import {
   CodeXml,
   ListChecks,
   Palette,
+  Shield,
 } from "lucide-react"
 import JsonBeautifyApp from "./json-beautify"
 import JsBeautifyApp from "./js-beautify"
@@ -16,6 +17,7 @@ import YmlCheckApp from "./yml-check"
 import UrlCodecApp from "./url-codec"
 import Base64CodecApp from "./base64-codec"
 import XmlBeautifyApp from "./xml-beautify"
+import JwtCodecApp from "./jwt-codec"
 
 export const appGroups = [
   {
@@ -104,6 +106,15 @@ export const apps = [
     lang: "Base64",
     icon: Binary,
     component: Base64CodecApp,
+  },
+  {
+    title: "JWT",
+    name: "jwt",
+    group: "codec",
+    descriptionKey: "app.jwt.description",
+    lang: "JWT",
+    icon: Shield,
+    component: JwtCodecApp,
   },
 ] as const
 
