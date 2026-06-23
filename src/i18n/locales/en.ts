@@ -55,4 +55,9 @@ export const en = {
   "tool.check": "Check",
   "tool.decode": "Decode",
   "tool.encode": "Encode",
+  "update.available": "Version {{version}} is available. Click to update and restart.",
+  "update.checking": "Checking for updates",
+  "update.error": "Update failed. Please try again later.",
+  "update.installing": "Downloading and installing update",
+  "update.installingProgress": "Downloading and installing update: {{progress}}%",
 } as const

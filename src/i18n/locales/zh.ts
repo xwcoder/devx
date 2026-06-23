@@ -55,4 +55,9 @@ export const zh = {
   "tool.check": "校验",
   "tool.decode": "解码",
   "tool.encode": "编码",
+  "update.available": "发现新版本 {{version}}，点击更新并重启",
+  "update.checking": "检查更新",
+  "update.error": "更新失败，请稍后重试",
+  "update.installing": "正在下载并安装更新",
+  "update.installingProgress": "正在下载并安装更新：{{progress}}%",
 } as const

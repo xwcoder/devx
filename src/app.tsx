@@ -4,6 +4,7 @@ import type { CSSProperties, MouseEvent as ReactMouseEvent } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { LanguageToggle } from "@/components/language-toggle"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { UpdateButton } from "@/components/update-button"
 import {
   SidebarInset,
   SidebarProvider,
@@ -84,6 +85,7 @@ function AppHeader() {
       />
       <SidebarTrigger className="relative size-8 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground" />
       <div className="relative ml-auto flex items-center gap-1">
+        <UpdateButton />
         <LanguageToggle />
         <ThemeToggle />
       </div>
