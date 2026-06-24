@@ -162,7 +162,7 @@ jobs:
         with:
           path: artifacts
 
-      - name: Generate updater manifest
+      - name: Prepare release assets
         run: |
           node <<'EOF'
           const fs = require("fs")
@@ -171,6 +171,11 @@ jobs:
           const releaseVersion = process.env.RELEASE_VERSION
           const manifestVersion = releaseVersion.replace(/^v/, "")
           const releaseBaseUrl = `https://github.com/${process.env.GITHUB_REPOSITORY}/releases/download/${releaseVersion}`
+          const releaseAssetsDir = "release-assets"
+          const stagedAssets = new Map()
+
+          fs.rmSync(releaseAssetsDir, { recursive: true, force: true })
+          fs.mkdirSync(releaseAssetsDir, { recursive: true })
 
           function walk(dir) {
             if (!fs.existsSync(dir)) {
@@ -207,6 +212,36 @@ jobs:
             throw new Error(`Missing updater package in ${artifactDir}`)
           }
 
+          function artifactName(filePath) {
+            if (!filePath.startsWith(`artifacts${path.sep}`)) {
+              return "release"
+            }
+
+            const relativePath = path.relative("artifacts", filePath)
+            return relativePath.split(path.sep)[0]
+          }
+
+          function safeName(value) {
+            return value.replace(/[^A-Za-z0-9._-]/g, "-")
+          }
+
+          function stageAsset(filePath, destinationName) {
+            const assetKey = `${filePath}:${destinationName ?? ""}`
+
+            if (stagedAssets.has(assetKey)) {
+              return stagedAssets.get(assetKey)
+            }
+
+            const assetName =
+              destinationName ?? `${safeName(artifactName(filePath))}-${path.basename(filePath)}`
+            const destinationPath = path.join(releaseAssetsDir, assetName)
+
+            fs.copyFileSync(filePath, destinationPath)
+            stagedAssets.set(assetKey, destinationPath)
+
+            return destinationPath
+          }
+
           const platformArtifacts = [
             {
               key: "darwin-x86_64",
@@ -236,12 +271,15 @@ jobs:
                 platform.artifactDir,
                 platform.signaturePatterns
               )
+              const stagedPackagePath = stageAsset(updaterPackage.packagePath)
+
+              stageAsset(`${updaterPackage.packagePath}.sig`)
 
               return [
                 platform.key,
                 {
                   signature: updaterPackage.signature,
-                  url: `${releaseBaseUrl}/${path.basename(updaterPackage.packagePath)}`,
+                  url: `${releaseBaseUrl}/${path.basename(stagedPackagePath)}`,
                 },
               ]
             })
@@ -260,6 +298,23 @@ jobs:
               2
             )}\n`
           )
+
+          stageAsset("latest.json", "latest.json")
+
+          const releaseFilePatterns = [
+            /\.AppImage$/,
+            /\.dmg$/,
+            /\.msi$/,
+            /\.sig$/,
+            /\.tar\.gz$/,
+            /\.zip$/,
+          ]
+
+          for (const filePath of walk("artifacts")) {
+            if (releaseFilePatterns.some((pattern) => pattern.test(filePath))) {
+              stageAsset(filePath)
+            }
+          }
           EOF
         env:
           RELEASE_VERSION: ${{ steps.get_version.outputs.version }}
@@ -288,17 +343,7 @@ jobs:
 
       - name: Collect release assets
         run: |
-          {
-            echo "latest.json"
-            find artifacts -type f \( \
-              -name '*.AppImage' -o \
-              -name '*.dmg' -o \
-              -name '*.msi' -o \
-              -name '*.sig' -o \
-              -name '*.tar.gz' -o \
-              -name '*.zip' \
-            \) | sort
-          } > release-assets.txt
+          find release-assets -type f | sort > release-assets.txt
 
           echo "Release assets:"
           cat release-assets.txt
